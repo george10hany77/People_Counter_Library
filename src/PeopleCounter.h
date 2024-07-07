@@ -13,7 +13,9 @@ public:
     void setSensor1Pin(uint8_t s1Pin);
     void setSensor2Pin(uint8_t s1Pin);
     void setMode(MODE mode);
+    int getCount();
     bool begin();
+    void runAlgorithm();
 private:
     bool areValidPins();
     static void action1();
@@ -25,6 +27,7 @@ private:
     volatile bool sensor2Val; //Default Value : depends on the mode
     bool flag2In = false; //Default Value : false
     bool flag2Out = false; //Default Value : false
+    int counter = 0; //Default Value : 0
     static PeopleCounter* instance; // Static pointer to instance, Default Value : nullptr
 };
 

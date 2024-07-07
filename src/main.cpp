@@ -38,35 +38,35 @@ void setup() {
 
 void loop() {
 
-    while (!sensor1) {
-        if (!sensor2) {
-            flag2In = true;
-        }else{
-            flag2In = false;
-        }
-         Serial.println("s1");
-    }
-
-    if(!sensor2 && flag2In){
-        counter ++;
-        digitalWrite(13, HIGH);
-        flag2In = false;
-    }
-
-    while (!sensor2) {
-        if (!sensor1) {
-            flag2Out = true;
-        }else{
-            flag2Out = false;
-        }
-         Serial.println("s2");
-    }
-
-    if(!sensor1 && flag2Out){
-        counter --;
-        digitalWrite(13, LOW);
-        flag2Out = false;
-    }
+//    while (!sensor1) {
+//        if (!sensor2) {
+//            flag2In = true;
+//        }else{
+//            flag2In = false;
+//        }
+//        Serial.println("s1");
+//    }
+//
+//    if(!sensor2 && flag2In){
+//        counter ++;
+//        digitalWrite(13, HIGH);
+//        flag2In = false;
+//    }
+//
+//    while (!sensor2) {
+//        if (!sensor1) {
+//            flag2Out = true;
+//        }else{
+//            flag2Out = false;
+//        }
+//        Serial.println("s2");
+//    }
+//
+//    if(!sensor1 && flag2Out){
+//        counter --;
+//        digitalWrite(13, LOW);
+//        flag2Out = false;
+//    }
 
      Serial.print(counter);
      Serial.print("  ");
@@ -91,7 +91,7 @@ void loop() {
         digitalWrite(12, LOW);
     }
 
-    while(counter < 0){
+    while(counter < 0){ // error happened
         digitalWrite(12, HIGH);
         delay(500);
         digitalWrite(12, LOW);
