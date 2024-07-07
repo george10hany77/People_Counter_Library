@@ -4,27 +4,18 @@
 #include <LiquidCrystal_I2C.h>
 #include  <Wire.h>
 
-volatile bool sensor1 = true;
-volatile bool sensor2 = true;
-
-bool flag2In = false;
-bool flag2Out = false;
-
-int counter = 0;
-int prevCounter = 0;
+#include "PeopleCounter.h"
 
 LiquidCrystal_I2C lcd(0x27,  16, 2);
 
-void action2();
-void action1();
+PeopleCounter pc(2,3,PeopleCounter::ACTIVE_LOW);
+
+int prevCounter = 0;
 
 void setup() {
     Serial.begin(115200);
-    pinMode(13, OUTPUT);
-    pinMode(2, INPUT);
-    attachInterrupt(digitalPinToInterrupt(2), action1, CHANGE);
-    pinMode(3, INPUT);
-    attachInterrupt(digitalPinToInterrupt(3), action2, CHANGE);
+
+    pc.begin();
 
     pinMode(12, OUTPUT);
 
@@ -32,78 +23,33 @@ void setup() {
     // turn on the backlight
     lcd.backlight();
     lcd.setCursor(0,0);
-    lcd.print(counter);
-
+    lcd.print(pc.getCount());
 }
 
 void loop() {
 
-//    while (!sensor1) {
-//        if (!sensor2) {
-//            flag2In = true;
-//        }else{
-//            flag2In = false;
-//        }
-//        Serial.println("s1");
-//    }
-//
-//    if(!sensor2 && flag2In){
-//        counter ++;
-//        digitalWrite(13, HIGH);
-//        flag2In = false;
-//    }
-//
-//    while (!sensor2) {
-//        if (!sensor1) {
-//            flag2Out = true;
-//        }else{
-//            flag2Out = false;
-//        }
-//        Serial.println("s2");
-//    }
-//
-//    if(!sensor1 && flag2Out){
-//        counter --;
-//        digitalWrite(13, LOW);
-//        flag2Out = false;
-//    }
+    pc.runAlgorithm();
 
-     Serial.print(counter);
-     Serial.print("  ");
-     Serial.print(sensor1);
-     Serial.print("  ");
-     Serial.print(sensor2);
-     Serial.print("  ");
-     Serial.print(flag2In);
-     Serial.print("  ");
-     Serial.println(flag2Out);
+    Serial.println(pc.getCount());
 
-    if (prevCounter != counter){
+    if (prevCounter != pc.getCount()){
         lcd.clear();
         lcd.setCursor(0,0);
-        lcd.print(counter);
-        prevCounter = counter;
+        lcd.print(pc.getCount());
+        prevCounter = pc.getCount();
     }
 
-    if (counter > 0) {
+    if (pc.getCount() > 0) {
         digitalWrite(12, HIGH);
     }else{
         digitalWrite(12, LOW);
     }
 
-    while(counter < 0){ // error happened
+    while(pc.getCount() < 0){ // error happened
         digitalWrite(12, HIGH);
         delay(500);
         digitalWrite(12, LOW);
         delay(500);
     }
 
-}
-
-void action1(){
-    sensor1 = digitalRead(2);
-}
-
-void action2(){
-    sensor2 = digitalRead(3);
 }

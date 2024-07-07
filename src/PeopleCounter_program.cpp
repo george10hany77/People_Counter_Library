@@ -3,26 +3,31 @@
 //
 #include "PeopleCounter.h"
 
+PeopleCounter* PeopleCounter::instance = nullptr;  // Definition of the static instance pointer
+
 PeopleCounter::PeopleCounter() {
+    sensor1Pin = -1;
+    sensor2Pin = -1;
+    mode = ACTIVE_LOW; // The Default Value is ACTIVE_LOW
     instance = nullptr;
 }
 
 PeopleCounter::PeopleCounter(uint8_t s1Pin, uint8_t s2Pin, MODE mode) {
     instance = nullptr;
-    this->sensor1Pin = s1Pin;
-    this->sensor2Pin = s2Pin;
+    sensor1Pin = s1Pin;
+    sensor2Pin = s2Pin;
     this->mode = mode;
     switch (mode) {
         case ACTIVE_LOW:
-            // if active low
+            // if the sensors are active low
             sensor1Val = true;
             sensor2Val = true;
             ////////////////
             break;
         case ACTIVE_HIGH:
-            // if active high
-            sensor1Val = LOW;
-            sensor2Val = LOW;
+            // if the sensors are active high
+            sensor1Val = false;
+            sensor2Val = false;
             ////////////////
             break;
     }
@@ -42,10 +47,10 @@ void PeopleCounter::setMode(MODE mode){
 }
 
 bool PeopleCounter::begin() {
-//    if (!areValidPins()) return false;
+    if (!areValidPins() || notInit()) return false;
     instance = this;
-    pinMode(digitalPinToInterrupt(sensor1Pin), INPUT);
-    attachInterrupt(sensor1Pin, action1, CHANGE);
+    pinMode(sensor1Pin, INPUT);
+    attachInterrupt(digitalPinToInterrupt(sensor1Pin), action1, CHANGE);
     pinMode(sensor2Pin, INPUT);
     attachInterrupt(digitalPinToInterrupt(sensor2Pin), action2, CHANGE);
     return true;
@@ -72,33 +77,68 @@ int PeopleCounter::getCount() {
 }
 
 void PeopleCounter::runAlgorithm() {
-    while (!sensor1Val) {
-        if (!sensor2Val) {
-            flag2In = true;
-        }else{
-            flag2In = false;
-        }
-        Serial.println("s1");
-    }
+    switch (mode) {
+        case ACTIVE_LOW:
+            while (!sensor1Val) {
+                if (!sensor2Val) {
+                    flag2In = true;
+                } else {
+                    flag2In = false;
+                }
+//            Serial.println("s1");
+            }
 
-    if(!sensor2Val && flag2In){
-        counter ++;
-        digitalWrite(13, HIGH);
-        flag2In = false;
-    }
+            if (!sensor2Val && flag2In) {
+                counter++;
+                flag2In = false;
+            }
 
-    while (!sensor2Val) {
-        if (!sensor1Val) {
-            flag2Out = true;
-        }else{
-            flag2Out = false;
-        }
-        Serial.println("s2");
-    }
+            while (!sensor2Val) {
+                if (!sensor1Val) {
+                    flag2Out = true;
+                } else {
+                    flag2Out = false;
+                }
+//            Serial.println("s2");
+            }
 
-    if(!sensor1Val && flag2Out){
-        counter --;
-        digitalWrite(13, LOW);
-        flag2Out = false;
+            if (!sensor1Val && flag2Out) {
+                counter--;
+                flag2Out = false;
+            }
+            break;
+        case ACTIVE_HIGH:
+            while (sensor1Val) {
+                if (sensor2Val) {
+                    flag2In = true;
+                } else {
+                    flag2In = false;
+                }
+//            Serial.println("s1");
+            }
+
+            if (sensor2Val && flag2In) {
+                counter++;
+                flag2In = false;
+            }
+
+            while (sensor2Val) {
+                if (sensor1Val) {
+                    flag2Out = true;
+                } else {
+                    flag2Out = false;
+                }
+//            Serial.println("s2");
+            }
+
+            if (sensor1Val && flag2Out) {
+                counter--;
+                flag2Out = false;
+            }
+            break;
     }
+}
+
+bool PeopleCounter::notInit(){
+    return (sensor1Pin == -1 || sensor2Pin == -1);
 }

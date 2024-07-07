@@ -5,9 +5,12 @@
 #ifndef PEOPLECOUNTER_LIBRARY_PEOPLECOUNTER_H
 #define PEOPLECOUNTER_LIBRARY_PEOPLECOUNTER_H
 #include "Arduino.h"
-#include "PeopleCounter_config.h"
 class PeopleCounter{
 public:
+    enum MODE{
+        ACTIVE_LOW,
+        ACTIVE_HIGH,
+    };
     PeopleCounter();
     PeopleCounter(uint8_t s1Pin, uint8_t s2Pin, MODE mode);
     void setSensor1Pin(uint8_t s1Pin);
@@ -17,6 +20,7 @@ public:
     bool begin();
     void runAlgorithm();
 private:
+    bool notInit();
     bool areValidPins();
     static void action1();
     static void action2();
