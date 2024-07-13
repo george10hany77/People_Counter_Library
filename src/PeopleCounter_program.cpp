@@ -76,7 +76,7 @@ int PeopleCounter::getCount() {
     return counter;
 }
 
-void PeopleCounter::runAlgorithm() {
+void PeopleCounter::runAlgorithmBlocking() {
     switch (mode) {
         case ACTIVE_LOW:
             while (!sensor1Val) {
@@ -137,6 +137,115 @@ void PeopleCounter::runAlgorithm() {
             }
             break;
     }
+}
+
+void PeopleCounter::runAlgorithm(){
+    switch (mode) {
+        case ACTIVE_LOW:
+            if (!sensor1Val && !s2Lock) { // if s1 is active and s2Lock is not
+                s1Lock = true;
+                s2Lock = false;
+                if (!sensor2Val) {
+                    flag2In = true;
+                }else{
+                    flag2In = false;
+                }
+//                Serial.println("s1");
+            }
+
+            if(!sensor2Val && flag2In && sensor1Val){
+                counter ++;
+                flag2In = false;
+            }
+
+            if (!sensor2Val && !s1Lock) {
+                s2Lock = true;
+                s1Lock = false;
+                if (!sensor1Val) {
+                    flag2Out = true;
+                }else{
+                    flag2Out = false;
+                }
+//                Serial.println("s2");
+            }
+
+            if(!sensor1Val && flag2Out && sensor2Val){
+                counter --;
+                flag2Out = false;
+            }
+
+            if (!sensor1Val && sensor2Val) {
+                s1Lock = true;
+                s2Lock = false;
+            }
+
+            if (!sensor2Val && sensor1Val) {
+                s1Lock = false;
+                s2Lock = true;
+            }
+
+            if (sensor2Val && sensor1Val){
+                s1Lock = false;
+                s2Lock = false;
+            }
+            break;
+        case ACTIVE_HIGH:
+            if (sensor1Val && !s2Lock) { // if s1 is active and s2Lock is not
+                s1Lock = true;
+                s2Lock = false;
+                if (!sensor2Val) {
+                    flag2In = true;
+                }else{
+                    flag2In = false;
+                }
+//                Serial.println("s1");
+            }
+
+            if(sensor2Val && flag2In && !sensor1Val){
+                counter ++;
+                flag2In = false;
+            }
+
+            if (sensor2Val && !s1Lock) {
+                s2Lock = true;
+                s1Lock = false;
+                if (sensor1Val) {
+                    flag2Out = true;
+                }else{
+                    flag2Out = false;
+                }
+//                Serial.println("s2");
+            }
+
+            if(sensor1Val && flag2Out && !sensor2Val){
+                counter --;
+                flag2Out = false;
+            }
+
+            if (sensor1Val && !sensor2Val) {
+                s1Lock = true;
+                s2Lock = false;
+            }
+
+            if (sensor2Val && !sensor1Val) {
+                s1Lock = false;
+                s2Lock = true;
+            }
+
+            if (!sensor2Val && !sensor1Val){
+                s1Lock = false;
+                s2Lock = false;
+            }
+    }
+//    Serial.print(counter);
+//    Serial.print("  ");
+//    Serial.print(sensor1Val);
+//    Serial.print("  ");
+//    Serial.print(sensor2Val);
+//    Serial.print("  ");
+//    Serial.print(s1Lock);
+//    Serial.print("  ");
+//    Serial.println(s2Lock);
 }
 
 bool PeopleCounter::notInit(){

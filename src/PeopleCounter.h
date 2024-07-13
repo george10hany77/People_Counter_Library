@@ -18,6 +18,7 @@ public:
     void setMode(MODE mode);
     int getCount();
     bool begin();
+    void runAlgorithmBlocking();
     void runAlgorithm();
 private:
     bool notInit();
@@ -31,6 +32,8 @@ private:
     volatile bool sensor2Val; //Default Value : depends on the mode
     bool flag2In = false; //Default Value : false
     bool flag2Out = false; //Default Value : false
+    bool s1Lock = false; //Default Value : false
+    bool s2Lock = false; //Default Value : false
     int counter = 0; //Default Value : 0
     static PeopleCounter* instance; // Static pointer to instance, Default Value : nullptr
 };
